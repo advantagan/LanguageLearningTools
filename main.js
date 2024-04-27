@@ -44,7 +44,33 @@ function selectTheLanguage(languageSelected) {
   displayVocabularyList();
 }
 
+function addVocabularyWord(e) {
+  e.preventDefault();
+  const vocabularyinput = document.getElementById("vocabularyinput");
+  let newword = vocabularyinput.value;
+  vocabularyinput.value = "";
+  languageList
+    .find((language) => language.name == selectedLanguage)
+    .words.push(newword);
+
+  saveLanguageList();
+  displayVocabularyList();
+}
+
 //displayVocabularyList()
+
+function displayVocabularyList() {
+  const vocabularylist = document.getElementById("vocabulary-list");
+  vocabularylist.innerHTML = "";
+  const selectedVocabularyList = languageList.find(
+    (language) => language.name == selectedLanguage
+  ).words;
+  for (let i = 0; i < selectedVocabularyList.length; i++) {
+    vocabularylist.innerHTML += `<li class="list-group-item">${selectedVocabularyList[i]}
+      <span class="mdi mdi-delete-circle" onclick="deletevocabularyword(${i})"></span>
+      </li>`;
+  }
+}
 
 loadLanguageList();
 renderLanguageList();
