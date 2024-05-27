@@ -1,3 +1,13 @@
+.quiz-item {
+  position: relative;
+}
+.quiz-item span {
+  position: absolute;
+  top: -5px;
+  right: 10px;
+  color: red;
+  cursor: pointer;
+}
 /* HTML: <div class="loader"></div> */
 .loader {
   width: 120px;
