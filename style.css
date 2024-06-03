@@ -1,11 +1,20 @@
 .quiz-item {
   position: relative;
 }
+.edit-quiz {
+  top: -10px;
+  color: blue;
+}
+.delete-quiz {
+  top: 5px;
+  color: red;
+}
+
 .quiz-item span {
   position: absolute;
-  top: -5px;
+
   right: 10px;
-  color: red;
+
   cursor: pointer;
 }
 /* HTML: <div class="loader"></div> */

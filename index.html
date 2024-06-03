@@ -32,6 +32,7 @@
     <div class="d-flex">
       <button
         class="btn btn-primary"
+        id="newquizbutton"
         data-bs-toggle="modal"
         data-bs-target="#newQuizModal"
       >
@@ -78,6 +79,7 @@
           </div>
         </div>
       </div>
+      <div id="results"></div>
     </div>
     <!-- Modal -->
     <div
@@ -145,6 +147,7 @@
               class="btn-close"
               data-bs-dismiss="modal"
               aria-label="Close"
+              onclick="resetQuizForm()"
             ></button>
           </div>
           <div class="modal-body">
@@ -166,11 +169,13 @@
               type="button"
               class="btn btn-secondary"
               data-bs-dismiss="modal"
+              onclick="resetQuizForm()"
             >
               Close
             </button>
             <button
               type="button"
+              id="createquiz"
               class="btn btn-primary"
               data-bs-dismiss="modal"
               onclick="addNewQuiz()"

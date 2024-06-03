@@ -4,6 +4,10 @@ const loader = document.querySelector(".loader");
 const resultElement = document.getElementById("result");
 const quizProgressElement = document.getElementById("quiz-progress");
 
+let isEditMode = false;
+
+let quiztoedit = null;
+
 let quizData = [];
 
 let currentQuestion = null;
@@ -23,7 +27,18 @@ function addNewQuiz() {
   const quizdescription = document.getElementById("quizdescriptioninput");
   const quiznametext = quizname.value;
   const quizdescriptiontext = quizdescription.value;
-  quizList.push({ name: quiznametext, description: quizdescriptiontext });
+  if (isEditMode) {
+    quiztoedit.name = quiznametext;
+    quiztoedit.description = quizdescriptiontext;
+    document.getElementById("newQuizListLabel").innerText = "Add New Quiz";
+    document.getElementById("createquiz").innerText = "Save";
+    isEditMode = false;
+    quiztoedit = null;
+  } else {
+    quizList.push({ name: quiznametext, description: quizdescriptiontext });
+  }
+  quizname.value = "";
+  quizdescription.value = "";
 
   saveQuizList();
   renderQuizList();
@@ -39,12 +54,43 @@ function renderQuizList() {
     allQuizzesElement.innerHTML += `<li class="quiz-item"><button class="btn me-4 ${
       selectedQuiz == quiz.name ? "btn-info" : "btn-primary"
     }" onclick="startQuiz('${quiz.name}')">${quiz.name}</button>
+    <span class="mdi mdi-pencil-circle edit-quiz" onclick="editQuiz('${
+      quiz.name
+    }')"></span>
     <span class="mdi mdi-delete-circle delete-quiz" onclick="deleteQuiz('${
       quiz.name
     }')"></span>
     </li>`;
   }
 }
+function editQuiz(name) {
+  const quiz = quizList.find((q) => q.name === name);
+  const quizname = document.getElementById("quiznameinput");
+  const quizdescription = document.getElementById("quizdescriptioninput");
+  quizname.value = quiz.name;
+  quizdescription.value = quiz.description;
+  document.getElementById("newQuizListLabel").innerText = "Update Quiz";
+  const createquizbutton = document.getElementById("createquiz");
+  createquizbutton.innerHTML = "Update Quiz";
+  const newquizbutton = document.getElementById("newquizbutton");
+  newquizbutton.click();
+  isEditMode = true;
+  quiztoedit = quiz;
+}
+
+function resetQuizForm() {
+  const quizname = document.getElementById("quiznameinput");
+  const quizdescription = document.getElementById("quizdescriptioninput");
+  quizname.value = "";
+  quizdescription.value = "";
+  document.getElementById("newQuizListLabel").innerText = "Add New Quiz";
+  const createquizbutton = document.getElementById("createquiz");
+  createquizbutton.innerHTML = "Save";
+
+  isEditMode = false;
+  quiztoedit = null;
+}
+
 function deleteQuiz(name) {
   const index = quizList.findIndex((q) => q.name === name);
   quizList.splice(index, 1);
@@ -71,7 +117,7 @@ async function createQuiz(quizname) {
   } `;
   const quizPrompt = `In ${selectedLanguage || "French"}, ${
     currentQuizData.description
-  } If the choice is incorrect, kindly explain why it is incorrect, providing four multiple choices. Kindly increase the difficulty level to B1. Generate 5 questions. Ensure that each question object has the: question, choices, correct_choice, and explanation keys. The question objects must directly be in an array, not in a nested property. The value of the correct_choice key should be a zero-based integer representing the index of the correct choice in the array of choices. Questions and choices should be in ${
+  } If the choice is incorrect, kindly explain why it is incorrect, providing four multiple choices. Kindly increase the difficulty level to B1. Generate 3 questions. Ensure that each question object has the: question, choices, correct_choice, and explanation keys. The question objects must directly be in an array, not in a nested property. The value of the correct_choice key should be a zero-based integer representing the index of the correct choice in the array of choices. Questions and choices should be in ${
     selectedLanguage || "French"
   } `;
   renderQuizList();
@@ -112,6 +158,7 @@ async function createQuiz(quizname) {
 async function startQuiz(quizname) {
   numberOfQuestions = quizData.length;
   currentQuestion = 0;
+  document.getElementById("results").style.display = "none";
   quizSection.style.display = "none";
   loader.style.display = "block";
   await createQuiz(quizname);
@@ -125,6 +172,11 @@ async function startQuiz(quizname) {
 }
 
 function displayNextQuestion() {
+  console.log(currentQuestion);
+  if (currentQuestion === quizData.length) {
+    displayResults();
+    return;
+  }
   const question = quizData[currentQuestion].question;
   const choices = quizData[currentQuestion].choices;
   const correctChoice = quizData[currentQuestion].correct_choice;
@@ -152,6 +204,28 @@ function displayNextQuestion() {
   } out of ${quizData.length}</span>`;
 }
 
+function displayResults() {
+  document.getElementById("quiz-section").style.display = "none";
+  const correctAnswers = [];
+  const wrongAnswers = [];
+  for (let i = 0; i < results.length; i++) {
+    if (results[i] == true) {
+      correctAnswers.push(quizData[i]);
+    } else {
+      wrongAnswers.push(quizData[i]);
+    }
+  }
+  const resultElement = document.getElementById("results");
+  resultElement.style.display = "block";
+  resultElement.innerHTML = `
+<div class="card p-2 ms-4"><div>Your results</div> 
+<div>correct questions: ${correctAnswers.length}</div>
+<div>incorrect questions: ${wrongAnswers.length}</div>
+<div>Total Score: ${correctAnswers.length} - ${results.length}</div>
+</div>
+`;
+}
+
 function checkAnswer(selectedChoice) {
   console.log(quizData[currentQuestion]);
   if (selectedChoice == quizData[currentQuestion].correct_choice) {
@@ -177,7 +251,11 @@ function checkAnswer(selectedChoice) {
     resultElement.style.color = "red";
     //difficultWords.push(quizData);
   }
+  if (currentQuestion === quizData.length - 1) {
+    document.getElementById("nextBtn").innerText = "Finish";
+  }
   currentQuestion = currentQuestion + 1;
+
   document.querySelectorAll(".form-check-input").forEach((checkbox) => {
     checkbox.disabled = true;
   });
