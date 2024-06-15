@@ -67,9 +67,18 @@ function displayVocabularyList() {
   ).words;
   for (let i = 0; i < selectedVocabularyList.length; i++) {
     vocabularylist.innerHTML += `<li class="list-group-item">${selectedVocabularyList[i]}
-      <span class="mdi mdi-delete-circle" onclick="deletevocabularyword(${i})"></span>
+      <span class="mdi mdi-delete-circle" onclick="deleteVocabularyWord(${i})"></span>
       </li>`;
   }
+}
+
+function deleteVocabularyWord(index) {
+  const selectedVocabularyList = languageList.find(
+    (language) => language.name == selectedLanguage
+  );
+  selectedVocabularyList.words.splice(index, 1);
+  saveLanguageList();
+  displayVocabularyList();
 }
 
 loadLanguageList();

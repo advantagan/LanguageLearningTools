@@ -157,9 +157,14 @@ async function createQuiz(quizname) {
   }, create a quiz to help me build vocabulary. Ask me what the word means, providing four multiple choices. Kindly increase the difficulty level to B1. Generate 5 questions. Ensure that each question object has the: question, choices, and correct_choice keys. The question objects must directly be in an array, not in a nested property. The value of the correct_choice key should be a zero-based integer representing the index of the correct choice in the array of choices. Questions and choices should be in ${
     selectedLanguage || "French"
   } `;
+  const words = languageList.find(
+    (language) => language.name == selectedLanguage
+  ).words;
+  const wordstrings = words.join(", ");
+
   const quizPrompt = `In ${selectedLanguage || "French"}, ${
     currentQuizData.description
-  } . Generate 3 questions each with four choices, amongst these choices one must be correct. Increase the difficulty level to B1.  Ensure that each question object has the: question, choices, correct_choice, and explanation keys. The question objects must directly be in an array, not in a nested property. The value of the correct_choice key should be a zero-based integer representing the index of the correct choice in the array of choices. Questions and choices should be in ${
+  } . Generate 3 questions from these vocabulary words ${wordstrings} each with four choices, amongst these choices one must be correct. Increase the difficulty level to B1.  Ensure that each question object has the: question, choices, correct_choice, and explanation keys. The question objects must directly be in an array, not in a nested property. The value of the correct_choice key should be a zero-based integer representing the index of the correct choice in the array of choices. Questions and choices should be in ${
     selectedLanguage || "French"
   } `;
 
