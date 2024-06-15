@@ -18,6 +18,8 @@ let results = [];
 
 let difficultWords = [];
 
+let storefavoriteQuizes = [];
+
 let quizList = [];
 
 let selectedQuiz = null;
@@ -54,6 +56,10 @@ function renderQuizList() {
     allQuizzesElement.innerHTML += `<li class="quiz-item"><button class="btn me-4 ${
       selectedQuiz == quiz.name ? "btn-info" : "btn-primary"
     }" onclick="startQuiz('${quiz.name}')">${quiz.name}</button>
+    <span class="mdi mdi-heart-box-outline favorite-quiz " onclick="favoriteQuiz('${
+      quiz.name
+    }')"></span>
+    
     <span class="mdi mdi-pencil-circle edit-quiz" onclick="editQuiz('${
       quiz.name
     }')"></span>
@@ -63,6 +69,33 @@ function renderQuizList() {
     </li>`;
   }
 }
+function favoriteQuiz(name) {
+  const quiz = quizList.find((q) => q.name === name);
+  storefavoriteQuizes.push(quiz);
+  localStorage.setItem("favoriteQuiz", JSON.stringify(storefavoriteQuizes));
+  renderFavoriteQuiz();
+}
+function renderFavoriteQuiz() {
+  const favoriteQuizElement = document.getElementById("favoritequiz");
+  favoriteQuizElement.innerHTML = `<h2 class="mb-4 font-bold" >Favorite Quizzes</h2>`;
+  for (let quiz of storefavoriteQuizes) {
+    favoriteQuizElement.innerHTML += `<li class="quiz-item"><button class="btn me-4 mb-4 ${
+      selectedQuiz == quiz.name ? "btn-info" : "btn-primary"
+    }" onclick="startQuiz('${quiz.name}')">${quiz.name}</button>
+    <span class="mdi mdi-heart-box-outline favorite-quiz " onclick="favoriteQuiz('${
+      quiz.name
+    }')"></span>
+    
+    <span class="mdi mdi-pencil-circle edit-quiz" onclick="editQuiz('${
+      quiz.name
+    }')"></span>
+    <span class="mdi mdi-delete-circle delete-quiz" onclick="deleteQuiz('${
+      quiz.name
+    }')"></span>
+    </li>`;
+  }
+}
+
 function editQuiz(name) {
   const quiz = quizList.find((q) => q.name === name);
   const quizname = document.getElementById("quiznameinput");
@@ -100,8 +133,17 @@ function deleteQuiz(name) {
 
 function loadQuizList() {
   let currentQuizList = localStorage.getItem("quizList");
-  if (currentQuizList != null) {
+
+  if (currentQuizList) {
     quizList = JSON.parse(currentQuizList);
+  }
+}
+function loadFavoriteQuiz() {
+  let currentFavoriteQuiz = localStorage.getItem("favoriteQuiz");
+  console.log(currentFavoriteQuiz);
+
+  if (currentFavoriteQuiz != null) {
+    storefavoriteQuizes = JSON.parse(currentFavoriteQuiz);
   }
 }
 
@@ -117,9 +159,12 @@ async function createQuiz(quizname) {
   } `;
   const quizPrompt = `In ${selectedLanguage || "French"}, ${
     currentQuizData.description
-  } If the choice is incorrect, kindly explain why it is incorrect, providing four multiple choices. Kindly increase the difficulty level to B1. Generate 3 questions. Ensure that each question object has the: question, choices, correct_choice, and explanation keys. The question objects must directly be in an array, not in a nested property. The value of the correct_choice key should be a zero-based integer representing the index of the correct choice in the array of choices. Questions and choices should be in ${
+  } . Generate 3 questions each with four choices, amongst these choices one must be correct. Increase the difficulty level to B1.  Ensure that each question object has the: question, choices, correct_choice, and explanation keys. The question objects must directly be in an array, not in a nested property. The value of the correct_choice key should be a zero-based integer representing the index of the correct choice in the array of choices. Questions and choices should be in ${
     selectedLanguage || "French"
   } `;
+
+  //If the choice is incorrect, explain why it is incorrect, providing four multiple choices.
+
   renderQuizList();
 
   const apikey = localStorage.getItem("apikey");
@@ -206,6 +251,7 @@ function displayNextQuestion() {
 
 function displayResults() {
   document.getElementById("quiz-section").style.display = "none";
+  document.getElementById("nextBtn").innerText = "Next";
   const correctAnswers = [];
   const wrongAnswers = [];
   for (let i = 0; i < results.length; i++) {
@@ -260,5 +306,7 @@ function checkAnswer(selectedChoice) {
     checkbox.disabled = true;
   });
 }
+loadFavoriteQuiz();
 loadQuizList();
 renderQuizList();
+renderFavoriteQuiz();

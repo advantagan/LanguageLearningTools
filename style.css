@@ -1,12 +1,17 @@
 .quiz-item {
   position: relative;
 }
+.favorite-quiz {
+  top: -5px;
+  color: red;
+}
+
 .edit-quiz {
-  top: -10px;
+  top: 10px;
   color: blue;
 }
 .delete-quiz {
-  top: 5px;
+  top: 25px;
   color: red;
 }
 
